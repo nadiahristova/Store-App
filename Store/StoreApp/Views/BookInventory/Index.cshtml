@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewData["Title"] = "Book Inventory";
+}
+
+<h3>Book Inventory</h3>
+
+<br />
+<br />
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <form asp-controller="BookInventory" asp-action="UploadFile"
+              data-ajax="true"
+              data-ajax-method="POST"
+              data-ajax-success="onSuccessfulFileUploads"
+              data-ajax-failure="onFail"
+              enctype="multipart/form-data">
+
+            <div class="form-group">
+                <div class="col-md-12">
+                    <p>Upload Book Catalogs:</p>
+                    <input class="form-control" type="file" name="files" multiple />
+                    <button class="btn btn-primary" type="submit">Upload</button>
+                </div>
+            </div>
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+</div>
+
+<br />
+<br />
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">Check number of available copies:</div>
+            <div class="panel-body">
+                <form asp-action="GetBookQuantity" asp-controller="BookInventory"
+                      data-ajax="true"
+                      data-ajax-method="GET"
+                      data-ajax-failure="onFail"
+                      data-ajax-success="onSuccessfulBookQuantityReturn">
+
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <input class="form-control" type="text" name="bookIdentifier" placeholder="Book Author - Book Title">
+                            <input class="btn btn-primary" type="submit" value="Get Book Quantity">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <table class="table" id="bookQuantityList">
+                <tr>
+                    <th>Book Title</th>
+                    <th>Quantity</th>
+                </tr>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">Calculate basket price: <span id="basketPrice"></span></div>
+            <div class="panel-body">
+                <form asp-action="CalculateBasketPrice" asp-controller="BookInventory"
+                      data-ajax="true"
+                      data-ajax-method="GET"
+                      data-ajax-failure="onFail"
+                      data-ajax-success="onSuccessfulBookBasketPriceCalculation">
+
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <textarea id="bookBucket" class="form-control" type="text" name="rawBookBasketList" style="height: 250px;" placeholder="(Book Author - Book Title) , (Book Author - Book Title) ..."></textarea>
+                            <input class="btn btn-primary" type="submit" value="Calculate">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+    <script>
+        var onSuccessfulFileUploads = function() {
+            alert("Successful file uploads.");
+        }
+
+        var onSuccessfulBookQuantityReturn = function (data) {
+            $('#bookQuantityList').show();
+            $('#bookQuantityList > tbody:last-child').append("<tr><td>" + data.bookTitle + "</td><td>" + data.quantity  + "</td></tr>");
+        }
+
+        var onSuccessfulBookBasketPriceCalculation = function (data) {
+            alert(data);
+            $('#basketPrice').text(data);
+        }
+
+        var onFail = function (data, d1, d2) {
+            alert(data.responseText);
+        }
+    </script>
+}
